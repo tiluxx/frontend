@@ -70,6 +70,11 @@ function Header() {
                         )}
                         {isSignedIn && (
                             <Nav.Item>
+                                <Link to={config.routes.proposalDashboard}>Your proposals</Link>
+                            </Nav.Item>
+                        )}
+                        {isSignedIn && (
+                            <Nav.Item>
                                 <Link to={config.routes.workDashboard}>Work Dashboard</Link>
                             </Nav.Item>
                         )}

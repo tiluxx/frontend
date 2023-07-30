@@ -3,7 +3,6 @@ import Header from '../components/Header'
 import styles from './HomeLayout.module.scss'
 
 const cx = classNames.bind(styles)
-const WorkContext = createContext()
 
 function HomeLayout({ children }) {
     return (

@@ -47,10 +47,10 @@ header {
 }
 
 .n2B-bq_header-title {
-  color: #000;
+  color: var(--text-color);
   margin-bottom: 30px;
   font-size: 5.2rem;
-  line-height: 6rem;
+  line-height: 7rem;
 }
 
 .n2B-bq_header-title span {
@@ -320,6 +320,48 @@ header {
 .gjY1hq_work-price, .gjY1hq_submission-title {
   font-size: 1.4rem;
   font-weight: 600;
+}
+
+.IHzzgq_banner-wrapper {
+  padding-bottom: 20px;
+}
+
+.ClMIyG_banner-wrapper {
+  padding-bottom: 20px;
+}
+
+.ClMIyG_work-wrapper {
+  padding: 20px 30px !important;
+}
+
+.ClMIyG_work-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.6rem;
+}
+
+.ClMIyG_work-condition {
+  text-align: end;
+}
+
+.ClMIyG_work-due {
+  text-align: end;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.4rem;
+}
+
+.ClMIyG_work-subtitle {
+  color: var(--neutral-color);
+}
+
+.ClMIyG_work-price, .ClMIyG_submission-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.ClMIyG_submit-product-form {
+  width: 100%;
 }
 
 :root, [data-bs-theme="light"] {
@@ -13492,7 +13534,10 @@ textarea.form-control-lg {
 
 :root {
   --primary-color: #10f;
-  --neutral-color: #5a5a72;
+  --neutral-color: #8f8fa3;
+  --background-color-surface: #09090d;
+  --background-color-body: #131318;
+  --text-color: #fff;
   --gradient-color-purple-pink: linear-gradient(to right, #501e9c 0%, #8169f1 30%, #8169f1 30%, #a44cee 73%, #ff847f 100%);
 }
 
@@ -13507,6 +13552,7 @@ html {
 }
 
 body {
+  background-color: var(--background-color-body);
   font-size: .9em;
   font-weight: 400;
   line-height: 1.5;
@@ -13539,6 +13585,10 @@ a {
   text-decoration: none;
 }
 
+form {
+  width: 100%;
+}
+
 .btn-primary-style {
   text-align: center;
   background-color: var(--primary-color);
@@ -13558,10 +13608,11 @@ a {
 }
 
 .btn-outline-style {
+  color: var(--text-color);
   border: 1px solid #0000;
   padding: 8px;
   transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  border-color: #0002 !important;
+  border: 1px solid #ffffff80 !important;
 }
 
 .btn-outline-style a, .btn-primary-style a {
@@ -13657,7 +13708,7 @@ a {
 }
 
 .navbar.navbar-style .nav-link, .navbar.navbar-style .nav-item {
-  color: #000;
+  color: var(--text-color);
   text-transform: uppercase;
   margin: 0 15px;
   font-size: 1.2rem;
@@ -13667,7 +13718,7 @@ a {
 }
 
 .nav-link a, .nav-item a {
-  color: #000;
+  color: var(--text-color);
   transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 

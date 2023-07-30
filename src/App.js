@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime'
 import { Fragment, createContext } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { CssVarsProvider } from '@mui/joy/styles'
-import { publicRoutes } from 'src/routes'
+import { publicRoutes } from './routes'
 
 const WalletContext = createContext()
 

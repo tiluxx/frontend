@@ -20,6 +20,8 @@ import Typography from '@mui/joy/Typography'
 
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
+import ModalAlert from '../../pages/components/ModalAlert'
+import config from '../../config'
 import styles from './CreateWork.module.scss'
 
 const cx = classNames.bind(styles)
@@ -27,6 +29,7 @@ const cx = classNames.bind(styles)
 function CreateWork() {
     const { contractId, wallet } = useContext(WalletContext)
     const [currency, setCurrency] = useState('dollar')
+    const [openModal, setOpenModal] = useState(false)
 
     const createWorkHandler = (e) => {
         e.preventDefault()
@@ -48,13 +51,15 @@ function CreateWork() {
             .then(async (res) => {
                 console.log(res)
                 console.log(getAllJob())
+                setOpenModal(true)
+
                 // set modal open = true to navigate to work dashboard
                 // return getAllJob()
             })
-            // .then(setValueFromBlockchain)
-            // .finally(() => {
-            //     setUiPleaseWait(false)
-            // })
+        // .then(setValueFromBlockchain)
+        // .finally(() => {
+        //     setUiPleaseWait(false)
+        // })
     }
 
     const getAllJob = () => {
@@ -86,13 +91,13 @@ function CreateWork() {
                                 <h3 className={cx('form-title')}>About the work</h3>
                                 <Divider insert="none" />
                                 <form onSubmit={createWorkHandler}>
-                                <CardContent
-                                    sx={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(2, minmax(80px, 1fr))',
-                                        gap: 1.5,
-                                    }}
-                                >
+                                    <CardContent
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(2, minmax(80px, 1fr))',
+                                            gap: 1.5,
+                                        }}
+                                    >
                                         <FormControl sx={{ gridColumn: '1/-1' }}>
                                             <FormLabel sx={{ my: '12px' }}>Give your project brief a title</FormLabel>
                                             <Input
@@ -180,8 +185,8 @@ function CreateWork() {
                                                 Save and Post
                                             </button>
                                         </CardActions>
-                                </CardContent>
-                                    </form>
+                                    </CardContent>
+                                </form>
                             </Card>
                         </Col>
                         <Col xs={12} lg={4}>

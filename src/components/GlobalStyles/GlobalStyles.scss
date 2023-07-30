@@ -3,7 +3,7 @@
 
 :root {
     --primary-color: hsl(244, 100%, 50%);
-    --neutral-color: hsl(240, 12%, 40%);
+    --neutral-color: hsl(240, 10%, 60%);
     --background-color-surface: #09090d;
     --background-color-body: #131318;
     --text-color: hsl(0, 0%, 100%);
@@ -69,6 +69,10 @@ img {
 
 a {
     text-decoration: none;
+}
+
+form {
+    width: 100%;
 }
 
 .btn-primary-style {

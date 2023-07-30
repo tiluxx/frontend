@@ -21,6 +21,8 @@ import Typography from '@mui/joy/Typography'
 
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
+import ModalAlert from '../../pages/components/ModalAlert'
+import config from '../../config'
 import styles from './SendProposal.module.scss'
 
 const cx = classNames.bind(styles)
@@ -29,6 +31,7 @@ function SendProposal() {
     const { contractId, wallet } = useContext(WalletContext)
     const [work, setWork] = useState({})
     const [currency, setCurrency] = useState('dollar')
+    const [openModal, setOpenModal] = useState(false)
     const { state } = useLocation()
 
     useEffect(() => {
@@ -47,12 +50,13 @@ function SendProposal() {
             .callMethod({ method: 'RegisterJob', args: { id: work.id, message: workCoverLetter.value }, contractId })
             .then(async (res) => {
                 // return getGreeting()
+                setOpenModal(true)
                 console.log(res)
             })
-            // .then(setValueFromBlockchain)
-            // .finally(() => {
-            //     setUiPleaseWait(false)
-            // })
+        // .then(setValueFromBlockchain)
+        // .finally(() => {
+        //     setUiPleaseWait(false)
+        // })
     }
 
     return (
@@ -236,6 +240,12 @@ function SendProposal() {
                     </Row>
                 </Container>
             </Box>
+            <ModalAlert
+                open={openModal}
+                setOpen={setOpenModal}
+                message="Your proposal've sent to client successfully! Be patient to wait response from them."
+                backPath={config.routes.findWork}
+            />
         </div>
     )
 }

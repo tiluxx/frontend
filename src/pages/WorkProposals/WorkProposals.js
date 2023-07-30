@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import classNames from 'classnames/bind'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -18,6 +18,7 @@ import Divider from '@mui/joy/Divider'
 
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
+import config from '../../config'
 import styles from './WorkProposals.module.scss'
 
 const cx = classNames.bind(styles)
@@ -37,9 +38,9 @@ function WorkProposals() {
                 const { status, data } = JSON.parse(res)
                 console.log(JSON.parse(res))
                 console.log(data)
-                if (status) {
-                    setWorkList([...data])
-                }
+                // if (status) {
+                //     setWork([...data])
+                // }
             })
             .catch((alert) => {
                 console.log(alert)
@@ -47,10 +48,41 @@ function WorkProposals() {
         // .finally(() => {
         //     setUiPleaseWait(false)
         // })
+        getAllProposalsOfThisJob({ id: 1 })
+            .then((res) => {
+                const { status, data } = JSON.parse(res)
+                console.log(JSON.parse(res))
+                console.log(data)
+            })
+            .catch((alert) => {
+                console.log(alert)
+            })
+        getAll().then((res) => {
+            console.log(JSON.parse(res))
+        })
     }, [work])
 
     const getAllProposalsOfThisJob = (work) => {
+        console.log(work?.id)
         return wallet.viewMethod({ method: 'GetJobRegister', contractId, args: { id: work?.id } })
+    }
+
+    const getAll = () => {
+        return wallet.viewMethod({ method: 'GetData', contractId })
+    }
+
+    const chooseFreelancerHandler = (freelancerId) => {
+        wallet
+            .callMethod({ method: 'ChooseFreelancer', args: { userId: freelancerId, jobId: work?.id }, contractId })
+            .then(async (res) => {
+                // return getGreeting()
+                setOpenModal(true)
+                console.log(res)
+            })
+        // .then(setValueFromBlockchain)
+        // .finally(() => {
+        //     setUiPleaseWait(false)
+        // })
     }
 
     return (
@@ -133,8 +165,10 @@ function WorkProposals() {
                                     <CardOverflow sx={{ mt: 1 }}>
                                         <CardActions buttonFlex="1">
                                             <ButtonGroup variant="outlined" sx={{ bgcolor: 'background.surface' }}>
-                                                <Button>Message</Button>
-                                                <Button>Choose</Button>
+                                                <Link to={config.routes.messages}>
+                                                    <Button>Message</Button>
+                                                </Link>
+                                                <Button onClick={chooseFreelancerHandler}>Choose</Button>
                                             </ButtonGroup>
                                         </CardActions>
                                     </CardOverflow>
@@ -156,13 +190,13 @@ function WorkProposals() {
                                 <Box>
                                     <Row>
                                         <Col xs={12}>
-                                            <h5 className={cx('work-title')}>
-                                                Image Recognition & Object Detection System
-                                            </h5>
+                                            <h5 className={cx('work-title')}>{work.title}</h5>
                                         </Col>
                                         <Col xs={12}>
                                             <small className={cx('work-subtitle')}>
-                                                <span className={cx('work-subtitle_price')}>Fixed price: $500</span>
+                                                <span
+                                                    className={cx('work-subtitle_price')}
+                                                >{`Fixed price: $${work.money}`}</span>
                                                 <span>
                                                     &nbsp;-&nbsp;<span>Entry level</span>
                                                 </span>
@@ -171,17 +205,12 @@ function WorkProposals() {
                                     </Row>
                                 </Box>
                                 <Box>
-                                    <p className={cx('work-desc')}>
-                                        Hey freelancers, we have a live website (landing page). We are looking for a
-                                        skilled web developer who can help us refresh our project. Our goal is to modify
-                                        certain sections, add appealing animations to the website, optimize it, and
-                                        overall give the design a fresh look. I will send detailed information and a
-                                        link to the ready design directly via DM. !!! GreenSock, Threejs or webgl for
-                                        the web animation is required !!! moreabout "Frontend development (figma to
-                                        html), React or something like this.
-                                    </p>
+                                    <p className={cx('work-desc')}>{work.description}</p>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                    <Chip variant="soft" color="neutral" size="lg" sx={{ pointerEvents: 'none' }}>
+                                        {work.category}
+                                    </Chip>
                                     <Chip variant="soft" color="neutral" size="lg" sx={{ pointerEvents: 'none' }}>
                                         AI
                                     </Chip>
