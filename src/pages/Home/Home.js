@@ -6,8 +6,8 @@ import Col from 'react-bootstrap/Col'
 
 import styles from './Home.module.scss'
 import config from '../../config'
-import headerImg from './header_4.png'
-import headerBubbleImg from './header_4_bubble.png'
+import headerImg from './header.png'
+import headerBubbleImg from './header_bubble.png'
 
 const cx = classNames.bind(styles)
 
@@ -43,7 +43,7 @@ function Home() {
                             </div>
                         </Col>
                         <Col md={6}>
-                            <div>
+                            <div className={cx('header-img-wrapper')}>
                                 <img src={headerImg} alt="Header figure" className={cx('header-figure-main')} />
                             </div>
                         </Col>

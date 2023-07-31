@@ -1,5 +1,6 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect, useContext } from 'react'
 import { Link as LinkRoute } from 'react-router-dom'
+import format from 'date-fns/format'
 import Avatar from '@mui/joy/Avatar'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
@@ -28,109 +29,8 @@ import {
     ArrowStepBackRegular,
     EyeRegular,
 } from '@fluentui/react-icons'
+import { WalletContext } from '../../../App'
 import config from '../../../config'
-
-const rows = [
-    {
-        id: 'INV-1234',
-        date: 'Feb 3, 2023',
-        status: 'Paid',
-        customer: {
-            initial: 'O',
-            name: 'Olivia Ryhe',
-            email: 'olivia@email.com',
-        },
-        subscription: 'Yearly',
-    },
-    {
-        id: 'INV-1233',
-        date: 'Feb 3, 2023',
-        status: 'Paid',
-        customer: {
-            initial: 'S',
-            name: 'Steve Hampton',
-            email: 'steve.hamp@email.com',
-        },
-        subscription: 'Monthly',
-    },
-    {
-        id: 'INV-1232',
-        date: 'Feb 3, 2023',
-        status: 'Paid',
-        customer: {
-            initial: 'C',
-            name: 'Ciaran Murray',
-            email: 'ciaran.murray@email.com',
-        },
-        subscription: 'Yearly',
-    },
-    {
-        id: 'INV-1231',
-        date: 'Feb 3, 2023',
-        status: 'Refunded',
-        customer: {
-            initial: 'M',
-            name: 'Maria Macdonald',
-            email: 'maria.mc@email.com',
-        },
-        subscription: 'Yearly',
-    },
-    {
-        id: 'INV-1230',
-        date: 'Feb 3, 2023',
-        status: 'Paid',
-        customer: {
-            initial: 'C',
-            name: 'Charles Fulton',
-            email: 'fulton@email.com',
-        },
-        subscription: 'Yearly',
-    },
-    {
-        id: 'INV-1229',
-        date: 'Feb 3, 2023',
-        status: 'Cancelled',
-        customer: {
-            initial: 'J',
-            name: 'Jay Hooper',
-            email: 'hooper@email.com',
-        },
-        subscription: 'Yearly',
-    },
-    {
-        id: 'INV-1228',
-        date: 'Feb 3, 2023',
-        status: 'Cancelled',
-        customer: {
-            initial: 'K',
-            name: 'Krystal Stevens',
-            email: 'k.stevens@email.com',
-        },
-        subscription: 'Monthly',
-    },
-    {
-        id: 'INV-1227',
-        date: 'Feb 3, 2023',
-        status: 'Paid',
-        customer: {
-            initial: 'S',
-            name: 'Sachin Flynn',
-            email: 's.flyn@email.com',
-        },
-        subscription: 'Monthly',
-    },
-    {
-        id: 'INV-1226',
-        date: 'Feb 3, 2023',
-        status: 'Cancelled',
-        customer: {
-            initial: 'B',
-            name: 'Bradley Rosales',
-            email: 'brad123@email.com',
-        },
-        subscription: 'Monthly',
-    },
-]
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -165,9 +65,34 @@ function stableSort(array, comparator) {
 }
 
 function ProposalsTable() {
+    const { contractId, wallet } = useContext(WalletContext)
+    const [proposalList, setProposalList] = useState([])
     const [order, setOrder] = useState('desc')
     const [selected, setSelected] = useState([])
     const [openFilter, setOpenFilter] = useState(false)
+
+    useEffect(() => {
+        console.log(wallet)
+        console.log(wallet.accountId)
+        getAllProposalsByAccountId()
+            .then((res) => {
+                const { status, data } = JSON.parse(res)
+                console.log(JSON.parse(res))
+                if (status) {
+                    setProposalList([...data])
+                }
+            })
+            .catch((alert) => {
+                console.log(alert)
+            })
+        // .finally(() => {
+        //     setUiPleaseWait(false)
+        // })
+    }, [])
+
+    const getAllProposalsByAccountId = () => {
+        return wallet.viewMethod({ method: 'GetJobRegisteredByUser', args: { id: wallet.accountId }, contractId })
+    }
 
     const renderFilters = () => (
         <Fragment>
@@ -286,13 +211,17 @@ function ProposalsTable() {
                         <tr>
                             <th style={{ width: 48, textAlign: 'center', padding: 12 }}>
                                 <Checkbox
-                                    indeterminate={selected.length > 0 && selected.length !== rows.length}
-                                    checked={selected.length === rows.length}
-                                    onChange={(event) => {
-                                        setSelected(event.target.checked ? rows.map((row) => row.id) : [])
+                                    indeterminate={selected.length > 0 && selected.length !== proposalList.length}
+                                    checked={selected.length === proposalList.length}
+                                    onChange={(e) => {
+                                        setSelected(
+                                            e.target.checked ? proposalList.map((proposal) => proposal.job.id) : [],
+                                        )
                                     }}
                                     color={
-                                        selected.length > 0 || selected.length === rows.length ? 'primary' : undefined
+                                        selected.length > 0 || selected.length === proposalList.length
+                                            ? 'primary'
+                                            : undefined
                                     }
                                     sx={{ verticalAlign: 'text-bottom' }}
                                 />
@@ -315,25 +244,25 @@ function ProposalsTable() {
                                     Work
                                 </Link>
                             </th>
-                            <th style={{ width: 120, padding: 12 }}>Created Date</th>
+                            <th style={{ width: 120, padding: 12 }}>Applied Date</th>
                             <th style={{ width: 120, padding: 12 }}>Status</th>
-                            <th style={{ width: 220, padding: 12 }}>Freelancer</th>
+                            <th style={{ width: 220, padding: 12 }}>Employer</th>
                             <th style={{ width: 120, padding: 12 }}>Due Date</th>
                             <th style={{ width: 200, padding: 12 }}> </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {stableSort(rows, getComparator(order, 'id')).map((row) => (
-                            <tr key={row.id}>
+                        {stableSort(proposalList, getComparator(order, 'id')).map((proposal) => (
+                            <tr key={proposal.job.id}>
                                 <td style={{ textAlign: 'center' }}>
                                     <Checkbox
-                                        checked={selected.includes(row.id)}
-                                        color={selected.includes(row.id) ? 'primary' : undefined}
+                                        checked={selected.includes(proposal.job.id)}
+                                        color={selected.includes(proposal.job.id) ? 'primary' : undefined}
                                         onChange={(event) => {
                                             setSelected((ids) =>
                                                 event.target.checked
-                                                    ? ids.concat(row.id)
-                                                    : ids.filter((itemId) => itemId !== row.id),
+                                                    ? ids.concat(proposal.job.id)
+                                                    : ids.filter((itemId) => itemId !== proposal.job.id),
                                             )
                                         }}
                                         slotProps={{ checkbox: { sx: { textAlign: 'left' } } }}
@@ -342,31 +271,30 @@ function ProposalsTable() {
                                 </td>
                                 <td>
                                     <LinkRoute to={config.routes.workDetail}>
-                                        <Typography fontWeight="md">{row.id}</Typography>
+                                        <Typography fontWeight="md">{proposal.job.title}</Typography>
                                     </LinkRoute>
                                 </td>
-                                <td>{row.date}</td>
+                                <td>{proposal.createAt ? format(new Date(proposal.createAt), 'PP') : 'Feb 3, 2023'}</td>
                                 <td>
                                     <Chip
                                         variant="soft"
                                         size="sm"
                                         startDecorator={
                                             {
-                                                Paid: <CheckmarkRegular />,
-                                                Refunded: <ArrowStepBackRegular />,
-                                                Cancelled: <DismissRegular />,
-                                            }[row.status]
+                                                Success: <CheckmarkRegular />,
+                                                Pending: <ArrowStepBackRegular />,
+                                            }['freelancer' in proposal?.job ? 'Success' : 'Pending']
                                         }
                                         color={
                                             {
                                                 Paid: 'success',
                                                 Refunded: 'neutral',
                                                 Cancelled: 'danger',
-                                            }[row.status]
+                                            }['freelancer' in proposal?.job ? 'Success' : 'Pending']
                                         }
                                         sx={{ fontSize: '1.2rem' }}
                                     >
-                                        {row.status}
+                                        {['freelancer' in proposal?.job ? 'Success' : 'Pending']}
                                     </Chip>
                                 </td>
                                 <td>
@@ -374,25 +302,26 @@ function ProposalsTable() {
                                         <Avatar size="sm">{row.customer.initial}</Avatar>
                                         <div>
                                             <Typography fontWeight="lg" level="body3" textColor="text.primary">
-                                                {row.customer.name}
+                                                {proposal?.job.creator.accountId}
                                             </Typography>
-                                            <Typography level="body3">{row.customer.email}</Typography>
                                         </div>
                                     </Box>
                                 </td>
                                 <td>{row.subscription}</td>
                                 <td>
-                                    <LinkRoute to={config.routes.workDetailFreelancerSide}>
-                                        <Link
-                                            fontWeight="lg"
-                                            component="button"
-                                            color="neutral"
-                                            sx={{ ml: 2 }}
-                                            startDecorator={<EyeRegular />}
-                                        >
-                                            View
-                                        </Link>
-                                    </LinkRoute>
+                                    {'freelancer' in proposal?.job && (
+                                        <LinkRoute to={config.routes.workDetailFreelancerSide} state={proposal?.job}>
+                                            <Link
+                                                fontWeight="lg"
+                                                component="button"
+                                                color="neutral"
+                                                sx={{ ml: 2 }}
+                                                startDecorator={<EyeRegular />}
+                                            >
+                                                View
+                                            </Link>
+                                        </LinkRoute>
+                                    )}
                                 </td>
                             </tr>
                         ))}

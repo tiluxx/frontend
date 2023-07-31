@@ -20,6 +20,10 @@ code {
   font-size: 1.2rem;
 }
 
+.XfT9hG_logo-img {
+  width: 80px;
+}
+
 
 
 header {
@@ -66,7 +70,13 @@ header {
   font-size: 1.5rem;
 }
 
+.n2B-bq_header-img-wrapper {
+  transform: translateY(-100px);
+}
+
 .n2B-bq_header-figure-main {
+  -webkit-user-drag: none;
+  user-drag: none;
   animation: 5s ease-in-out infinite n2B-bq_floating;
 }
 
@@ -91,7 +101,7 @@ header {
   }
 
   50% {
-    transform: translate(0, 20px);
+    transform: translate(0, 30px);
   }
 
   100% {
@@ -13673,7 +13683,7 @@ form {
   font-size: 2rem;
 }
 
-.MuiFormLabel-root, .MuiFormHelperText-root {
+.MuiFormLabel-root, .MuiFormHelperText-root, .MuiOption-root {
   font-family: Inter, sans-serif !important;
   font-size: 1.4rem !important;
 }
@@ -13684,7 +13694,7 @@ form {
   font-size: 1.4rem !important;
 }
 
-.MuiInput-startDecorator, .MuiFormHelperText-root, .MuiTypography-root.MuiTypography-body1, .MuiTypography-root.MuiTypography-body2, .MuiSheet-root.MuiSheet-variantSoft, .MuiSelect-root.MuiSelect-variantPlain.MuiSelect-colorNeutral, .MuiSelect-root.Mui-expanded.MuiSelect-variantPlain.MuiSelect-colorNeutral {
+.MuiButton-root.MuiButton-variantSolid, .MuiInput-startDecorator, .MuiFormHelperText-root, .MuiTypography-root.MuiTypography-body1, .MuiTypography-root.MuiTypography-body2, .MuiSheet-root.MuiSheet-variantSoft, .MuiSelect-root.MuiSelect-variantPlain.MuiSelect-colorNeutral, .MuiSelect-root.Mui-expanded.MuiSelect-variantPlain.MuiSelect-colorNeutral {
   font-family: Inter, sans-serif;
   font-size: 1.4rem;
 }
@@ -13696,6 +13706,11 @@ form {
 
 .MuiButton-root.MuiButton-colorNeutral {
   padding: 10px 20px;
+}
+
+.MuiButton-root.MuiButton-variantSolid.MuiButton-colorPrimary {
+  color: #fff;
+  background-color: var(--primary-color);
 }
 
 .fs-2 {

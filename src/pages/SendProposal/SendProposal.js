@@ -22,6 +22,7 @@ import Typography from '@mui/joy/Typography'
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
 import ModalAlert from '../../pages/components/ModalAlert'
+import ModalLoading from '../../pages/components/ModalLoading'
 import config from '../../config'
 import styles from './SendProposal.module.scss'
 
@@ -31,7 +32,8 @@ function SendProposal() {
     const { contractId, wallet } = useContext(WalletContext)
     const [work, setWork] = useState({})
     const [currency, setCurrency] = useState('dollar')
-    const [openModal, setOpenModal] = useState(false)
+    const [openModalAlert, setOpenModalAlert] = useState(false)
+    const [openModalLoading, setOpenModalLoading] = useState(false)
     const { state } = useLocation()
 
     useEffect(() => {
@@ -40,7 +42,7 @@ function SendProposal() {
 
     const sendProposalHandler = (e) => {
         e.preventDefault()
-        // setUiPleaseWait(true)
+        setOpenModalLoading(true)
         const { workCoverLetter } = e.target.elements
         console.log(workCoverLetter.value)
         console.log(work.id)
@@ -50,7 +52,8 @@ function SendProposal() {
             .callMethod({ method: 'RegisterJob', args: { id: work.id, message: workCoverLetter.value }, contractId })
             .then(async (res) => {
                 // return getGreeting()
-                setOpenModal(true)
+                setOpenModalLoading(false)
+                setOpenModalAlert(true)
                 console.log(res)
             })
         // .then(setValueFromBlockchain)
@@ -162,6 +165,7 @@ function SendProposal() {
                                                         name: 'workBudget',
                                                     },
                                                 }}
+                                                required
                                             />
                                         </FormControl>
                                         <FormControl sx={{ gridColumn: '1/-1' }}>
@@ -183,6 +187,7 @@ function SendProposal() {
                                                         name: 'workCoverLetter',
                                                     },
                                                 }}
+                                                required
                                             />
                                         </FormControl>
                                         <FormControl sx={{ gridColumn: '1/-1' }}>
@@ -241,10 +246,16 @@ function SendProposal() {
                 </Container>
             </Box>
             <ModalAlert
-                open={openModal}
-                setOpen={setOpenModal}
+                open={openModalAlert}
+                setOpen={setOpenModalAlert}
                 message="Your proposal've sent to client successfully! Be patient to wait response from them."
                 backPath={config.routes.findWork}
+            />
+            <ModalLoading
+                open={openModalLoading}
+                setOpen={setOpenModalLoading}
+                title="Sending"
+                message="We are preparing your work to be published."
             />
         </div>
     )

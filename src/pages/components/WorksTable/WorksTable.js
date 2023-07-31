@@ -27,7 +27,6 @@ import {
     DismissRegular,
     ArrowStepBackRegular,
     EditRegular,
-    DeleteRegular,
     EyeRegular,
 } from '@fluentui/react-icons'
 
@@ -70,7 +69,7 @@ function WorksTable() {
     const [openFilter, setOpenFilter] = useState(false)
 
     useEffect(() => {
-        getAllJob()
+        getAllJobByCreator()
             .then((res) => {
                 const { status, data } = JSON.parse(res)
                 if (status) {
@@ -80,14 +79,33 @@ function WorksTable() {
             .catch((alert) => {
                 console.log(alert)
             })
+    }, [])
+
+    const getAllJobByCreator = () => {
+        return wallet.viewMethod({ method: 'GetJob', contractId })
+    }
+
+    const deleteJobHandler = (e) => {
+        e.preventDefault()
+        // setUiPleaseWait(true)
+        const { workCoverLetter } = e.target.elements
+        console.log(workCoverLetter.value)
+        console.log(work.id)
+
+        // use the wallet to send the greeting to the contract
+        wallet
+            .callMethod({ method: 'RegisterJob', args: { id: work.id, message: workCoverLetter.value }, contractId })
+            .then(async (res) => {
+                // return getGreeting()
+                setOpenModal(true)
+                console.log(res)
+            })
+        // .then(setValueFromBlockchain)
         // .finally(() => {
         //     setUiPleaseWait(false)
         // })
-    }, [])
-
-    const getAllJob = () => {
-        return wallet.viewMethod({ method: 'GetJob', contractId })
     }
+
     const renderFilters = () => (
         <Fragment>
             <FormControl size="sm">
@@ -320,24 +338,17 @@ function WorksTable() {
                                             View
                                         </Link>
                                     </LinkRoute>
-                                    <Link
-                                        fontWeight="lg"
-                                        component="button"
-                                        color="neutral"
-                                        sx={{ ml: 2 }}
-                                        startDecorator={<EditRegular />}
-                                    >
-                                        Edit
-                                    </Link>
-                                    <Link
-                                        fontWeight="lg"
-                                        component="button"
-                                        color="danger"
-                                        sx={{ ml: 2 }}
-                                        startDecorator={<DeleteRegular />}
-                                    >
-                                        Delete
-                                    </Link>
+                                    <LinkRoute to={config.routes.createWork} state={{ type: 'modify', work: work }}>
+                                        <Link
+                                            fontWeight="lg"
+                                            component="button"
+                                            color="neutral"
+                                            sx={{ ml: 2 }}
+                                            startDecorator={<EditRegular />}
+                                        >
+                                            Edit/Delete
+                                        </Link>
+                                    </LinkRoute>
                                 </td>
                             </tr>
                         ))}

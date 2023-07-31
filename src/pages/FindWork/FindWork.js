@@ -13,9 +13,16 @@ import IconButton from '@mui/joy/IconButton'
 import Typography from '@mui/joy/Typography'
 import Chip from '@mui/joy/Chip'
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
+import FormControl from '@mui/joy/FormControl'
+import FormLabel from '@mui/joy/FormLabel'
+import Select from '@mui/joy/Select'
+import Option from '@mui/joy/Option'
+import Input from '@mui/joy/Input'
+import { SearchRegular } from '@fluentui/react-icons'
 
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
+import LoadingSkeleton from '../../pages/components/LoadingSkeleton'
 import config from '../../config'
 import styles from './FindWork.module.scss'
 
@@ -23,13 +30,12 @@ const cx = classNames.bind(styles)
 
 function FindWork() {
     const { contractId, wallet } = useContext(WalletContext)
-    const [workList, setWorkList] = useState([])
+    const [workList, setWorkList] = useState(null)
 
     useEffect(() => {
-        getAllJob()
+        getAllAvailableJob()
             .then((res) => {
                 const { status, data } = JSON.parse(res)
-                console.log(status)
                 console.log(data)
                 if (status) {
                     setWorkList([...data])
@@ -43,8 +49,8 @@ function FindWork() {
         // })
     }, [])
 
-    const getAllJob = () => {
-        return wallet.viewMethod({ method: 'GetJob', contractId })
+    const getAllAvailableJob = () => {
+        return wallet.viewMethod({ method: 'GetJob', args: { status: 0 }, contractId })
     }
 
     return (
@@ -58,62 +64,153 @@ function FindWork() {
 
                     {/* Works grid */}
                     <Col xs={12} md={9}>
-                        {workList.map((work) => (
-                            <Card
-                                variant="outlined"
+                        <Card
+                            variant="outlined"
+                            sx={{
+                                width: '100%',
+                            }}
+                            className={cx('work-wrapper')}
+                        >
+                            <Box
                                 sx={{
-                                    width: '100%',
+                                    borderRadius: 'sm',
+                                    py: 2,
+                                    display: {
+                                        xs: 'none',
+                                        sm: 'flex',
+                                    },
+                                    flexWrap: 'wrap',
+                                    gap: 1.5,
+                                    '& > *': {
+                                        minWidth: {
+                                            xs: '120px',
+                                            md: '160px',
+                                        },
+                                    },
                                 }}
-                                className={cx('work-wrapper')}
-                                key={work.id}
                             >
-                                <CardContent>
-                                    <Box>
-                                        <Row>
-                                            <Col xs={12}>
-                                                <h5 className={cx('work-title')}>{work.title}</h5>
-                                            </Col>
-                                            <Col xs={12}>
-                                                <small className={cx('work-subtitle')}>
-                                                    <span
-                                                        className={cx('work-subtitle_price')}
-                                                    >{`Fixed price: $${work.money}`}</span>
-                                                    <span>
-                                                        &nbsp;-&nbsp;<span>Entry level</span>
-                                                    </span>
-                                                </small>
-                                            </Col>
-                                        </Row>
-                                    </Box>
-                                    <Box>
-                                        <p className={cx('work-desc')}>{work.description}</p>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-                                        <Chip variant="soft" color="neutral" size="lg" sx={{ pointerEvents: 'none' }}>
-                                            {work.category}
-                                        </Chip>
-                                        <Chip variant="soft" color="neutral" size="lg" sx={{ pointerEvents: 'none' }}>
-                                            AI
-                                        </Chip>
-                                        <Chip variant="soft" color="neutral" size="lg" sx={{ pointerEvents: 'none' }}>
-                                            UI/UX
-                                        </Chip>
-                                    </Box>
-                                </CardContent>
-                                <CardActions buttonFlex="0 1 120px">
-                                    <IconButton variant="outlined" color="neutral" sx={{ mr: 'auto' }}>
-                                        <FavoriteBorder />
-                                    </IconButton>
-                                    <Link
-                                        to={config.routes.sendProposal}
-                                        state={{ work: work }}
-                                        className={cx('send-btn', 'btn', 'rounded-pill', 'btn-outline-style')}
+                                <FormControl sx={{ flex: 1 }} size="lg">
+                                    <FormLabel>Search for work</FormLabel>
+                                    <Input
+                                        placeholder="Search"
+                                        startDecorator={<SearchRegular />}
+                                        sx={{ '--Icon-fontSize': '2rem', '--Input-focusedHighlight': '#1100ff' }}
+                                    />
+                                </FormControl>
+                                <FormControl size="lg">
+                                    <FormLabel>Status</FormLabel>
+                                    <Select
+                                        placeholder="Sort by"
+                                        sx={{
+                                            py: 0,
+                                        }}
+                                        // slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
                                     >
-                                        Send proposal
-                                    </Link>
-                                </CardActions>
-                            </Card>
-                        ))}
+                                        <Option
+                                            value="paid"
+                                            onClick={() => {
+                                                console.log('newest')
+                                            }}
+                                        >
+                                            Newest works
+                                        </Option>
+                                        <Option
+                                            value="pending"
+                                            onClick={() => {
+                                                console.log('best')
+                                            }}
+                                        >
+                                            Best employers
+                                        </Option>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                        </Card>
+                        {workList ? (
+                            workList.map((work) => (
+                                <Card
+                                    variant="outlined"
+                                    sx={{
+                                        width: '100%',
+                                    }}
+                                    className={cx('work-wrapper')}
+                                    key={work.id}
+                                >
+                                    <CardContent>
+                                        <Box>
+                                            <Row>
+                                                <Col xs={12}>
+                                                    <h5 className={cx('work-title')}>{work.title}</h5>
+                                                </Col>
+                                                <Col xs={12}>
+                                                    <small className={cx('work-subtitle')}>
+                                                        <span
+                                                            className={cx('work-subtitle_price')}
+                                                        >{`Fixed price: $${work.money}`}</span>
+                                                        <span>
+                                                            &nbsp;-&nbsp;<span>Entry level</span>
+                                                        </span>
+                                                    </small>
+                                                </Col>
+                                            </Row>
+                                        </Box>
+                                        <Box>
+                                            <p className={cx('work-desc')}>{work.description}</p>
+                                        </Box>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                marginTop: '10px',
+                                            }}
+                                        >
+                                            {work.categories.map((category, index) => (
+                                                <Chip
+                                                    variant="soft"
+                                                    color="neutral"
+                                                    size="lg"
+                                                    sx={{ pointerEvents: 'none' }}
+                                                    key={index}
+                                                >
+                                                    {category}
+                                                </Chip>
+                                            ))}
+                                            <Chip
+                                                variant="soft"
+                                                color="neutral"
+                                                size="lg"
+                                                sx={{ pointerEvents: 'none' }}
+                                            >
+                                                AI
+                                            </Chip>
+                                            <Chip
+                                                variant="soft"
+                                                color="neutral"
+                                                size="lg"
+                                                sx={{ pointerEvents: 'none' }}
+                                            >
+                                                UI/UX
+                                            </Chip>
+                                        </Box>
+                                    </CardContent>
+                                    <CardActions buttonFlex="0 1 120px">
+                                        <IconButton variant="outlined" color="neutral" sx={{ mr: 'auto' }}>
+                                            <FavoriteBorder />
+                                        </IconButton>
+                                        <Link
+                                            to={config.routes.sendProposal}
+                                            state={{ work: work }}
+                                            className={cx('send-btn', 'btn', 'rounded-pill', 'btn-outline-style')}
+                                        >
+                                            Send proposal
+                                        </Link>
+                                    </CardActions>
+                                </Card>
+                            ))
+                        ) : (
+                            <LoadingSkeleton />
+                        )}
                     </Col>
 
                     {/* Bio card */}

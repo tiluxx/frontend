@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
+import format from 'date-fns/format'
 import classNames from 'classnames/bind'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -12,27 +13,72 @@ import Chip from '@mui/joy/Chip'
 import Divider from '@mui/joy/Divider'
 import AspectRatio from '@mui/joy/AspectRatio'
 import Typography from '@mui/joy/Typography'
-import { DocumentFolderRegular } from '@fluentui/react-icons'
+import Button from '@mui/joy/Button'
+import { DocumentFolderRegular, EditRegular } from '@fluentui/react-icons'
 
+import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
 import ModalAlert from '../../pages/components/ModalAlert'
+import ModalEdit from '../../pages/components/ModalEdit'
+import ModalLoading from '../../pages/components/ModalLoading'
 import config from '../../config'
 import styles from './WorkDetail.module.scss'
 
 const cx = classNames.bind(styles)
 
 function WorkDetail() {
+    const { contractId, wallet } = useContext(WalletContext)
     const [work, setWork] = useState({})
-    const [openModal, setOpenModal] = useState(false)
+    const [openModalAlert, setOpenModalAlert] = useState(false)
+    const [openModalEdit, setOpenModalEdit] = useState(false)
+    const [openModalLoading, setOpenModalLoading] = useState(false)
+    const [isBtnLoading, setIsBtnLoading] = useState(false)
+    const [workDueDateTime, setWorkDueDateTime] = useState('')
     const { state } = useLocation()
 
     useEffect(() => {
         setWork({ ...state?.work })
     }, [])
-    
+
     const payWorkHandler = (e) => {
         e.preventDefault()
-        setOpenModal(true)
+        setOpenModalLoading(true)
+
+        wallet
+            .callMethod({
+                method: 'VerifyPaymentRequest',
+                args: {
+                    id: work?.id,
+                },
+                contractId,
+            })
+            .then(async (res) => {
+                console.log(res)
+                setOpenModalAlert(true)
+            })
+    }
+
+    const changeDueDateHandler = (e) => {
+        e.preventDefault()
+        setIsBtnLoading(true)
+        const dateTime = e.target.elements[0].value + ' ' + e.target.elements[1].value
+
+        wallet
+            .callMethod({
+                method: 'SetJobDeadline',
+                args: {
+                    jobId: work.id,
+                    // deadline: dateTime + ':59',
+                    deadline: e.target.elements[0].value,
+                },
+                contractId,
+            })
+            .then(async (res) => {
+                console.log(res)
+                setWorkDueDateTime(format(new Date(dateTime), 'iii, MMM do uuuu, kk:mm'))
+                setIsBtnLoading(false)
+                setOpenModalEdit(false)
+            })
     }
 
     return (
@@ -192,7 +238,9 @@ function WorkDetail() {
                                     </Box>
                                 </Box>
                                 <Box>
-                                    <h5 className={cx('work-due')}>Due date: Sat, July 31, 2023</h5>
+                                    <h5 className={cx('work-due')}>
+                                        Due date: {workDueDateTime ? workDueDateTime : 'Sat, July 31 2023, 00:00'}
+                                    </h5>
                                 </Box>
                             </Box>
                             <CardContent>
@@ -201,16 +249,43 @@ function WorkDetail() {
                                     <a href="github.com">github.com</a>
                                 </Typography>
                             </CardContent>
+                            <CardActions>
+                                <Button
+                                    variant="outlined"
+                                    color="neutral"
+                                    startDecorator={<EditRegular />}
+                                    onClick={() => {
+                                        setOpenModalEdit(true)
+                                    }}
+                                >
+                                    Change due
+                                </Button>
+                            </CardActions>
                         </Card>
                     </Col>
                 </Row>
             </Container>
             <ModalAlert
-                open={openModal}
-                setOpen={setOpenModal}
+                open={openModalAlert}
+                setOpen={setOpenModalAlert}
                 title="Payment Successfully"
                 message="Wow! This was a long journey to have your work done by our talents. You've paid your bill successfuly."
                 backPath={config.routes.proposalDashboard}
+            />
+            <ModalEdit
+                open={openModalEdit}
+                setOpen={setOpenModalEdit}
+                title="Change due"
+                message="Fill in the due date of the work."
+                inputType="datetime"
+                submitFormHandler={changeDueDateHandler}
+            />
+            <ModalLoading
+                open={openModalLoading}
+                setOpen={setOpenModalLoading}
+                isLoading={isBtnLoading}
+                title="Sending"
+                message="We are preparing your work to be published."
             />
         </div>
     )

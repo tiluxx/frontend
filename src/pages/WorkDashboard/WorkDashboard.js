@@ -85,7 +85,7 @@ function WorkDashboard() {
                                             </Typography>
                                             <Box sx={{ flex: 999 }} />
                                             <Box sx={{ display: 'flex', gap: 1, '& > *': { flexGrow: 1 } }}>
-                                                <Link to={config.routes.createWork}>
+                                                <Link to={config.routes.createWork} state={{ type: 'create' }}>
                                                     <Button
                                                         variant="outlined"
                                                         color="neutral"

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import classNames from 'classnames/bind'
 import Container from 'react-bootstrap/Container'
@@ -16,6 +16,7 @@ import FormLabel from '@mui/joy/FormLabel'
 import Input from '@mui/joy/Input'
 import { DocumentFolderRegular } from '@fluentui/react-icons'
 
+import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
 import ModalAlert from '../../pages/components/ModalAlert'
 import config from '../../config'
@@ -24,6 +25,7 @@ import styles from './WorkDetailFreelancerSide.module.scss'
 const cx = classNames.bind(styles)
 
 function WorkDetailFreelancerSide() {
+    const { contractId, wallet } = useContext(WalletContext)
     const [work, setWork] = useState({})
     const [openModal, setOpenModal] = useState(false)
     const { state } = useLocation()
@@ -34,7 +36,21 @@ function WorkDetailFreelancerSide() {
 
     const submitProductHandler = (e) => {
         e.preventDefault()
-        setOpenModal(true)
+
+        wallet
+            .callMethod({ method: 'SendPaymentRequest', args: { id: state?.work.id }, contractId })
+            .then(async (res) => {
+                // return getGreeting()
+                console.log(res)
+                setOpenModal(true)
+            })
+            .catch((res) => {
+                console.log(res)
+            })
+        // .then(setValueFromBlockchain)
+        // .finally(() => {
+        //     setUiPleaseWait(false)
+        // })
     }
 
     return (
@@ -102,14 +118,17 @@ function WorkDetailFreelancerSide() {
                                                             marginTop: '10px',
                                                         }}
                                                     >
-                                                        <Chip
-                                                            variant="soft"
-                                                            color="neutral"
-                                                            size="lg"
-                                                            sx={{ pointerEvents: 'none' }}
-                                                        >
-                                                            {work.category}
-                                                        </Chip>
+                                                        {work.categories.map((category, index) => (
+                                                            <Chip
+                                                                variant="soft"
+                                                                color="neutral"
+                                                                size="lg"
+                                                                sx={{ pointerEvents: 'none' }}
+                                                                key={index}
+                                                            >
+                                                                {category}
+                                                            </Chip>
+                                                        ))}
                                                         <Chip
                                                             variant="soft"
                                                             color="neutral"
