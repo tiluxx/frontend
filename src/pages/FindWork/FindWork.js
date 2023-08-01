@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { isAfter, isBefore } from 'date-fns'
 import classNames from 'classnames/bind'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -51,6 +52,51 @@ function FindWork() {
 
     const getAllAvailableJob = () => {
         return wallet.viewMethod({ method: 'GetJob', args: { status: 0 }, contractId })
+    }
+
+    function dateComparator(firstWork, secondWork) {
+        console.log(firstWork)
+        console.log(secondWork)
+        const first = new Date(firstWork?.createdAt)
+        const second = new Date(secondWork?.createdAt)
+        if (isAfter(first, second)) {
+            return -1
+        }
+        if (isBefore(first, second)) {
+            return 1
+        }
+        return 0
+    }
+
+    function starComparator(firstWork, secondWork) {
+        const first = firstWork?.createdAt
+        const second = secondWork?.createdAt
+        if (isAfter(first, second)) {
+            return -1
+        }
+        if (isBefore(first, second)) {
+            return 1
+        }
+        return 0
+    }
+
+    const orderNewestCreatedDateHandler = () => {
+        if (workList === null) {
+            return []
+        }
+
+        const newWork = [...workList]
+        console.log(newWork.sort(dateComparator))
+        setWorkList(newWork.sort(dateComparator))
+    }
+
+    const orderBestEmployerHandler = () => {
+        if (workList === null) {
+            return []
+        }
+
+        const newWork = [...workList]
+        setWorkList(newWork.sort(starComparator()))
     }
 
     return (
@@ -106,20 +152,10 @@ function FindWork() {
                                         }}
                                         // slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
                                     >
-                                        <Option
-                                            value="paid"
-                                            onClick={() => {
-                                                console.log('newest')
-                                            }}
-                                        >
+                                        <Option value="paid" onClick={orderNewestCreatedDateHandler}>
                                             Newest works
                                         </Option>
-                                        <Option
-                                            value="pending"
-                                            onClick={() => {
-                                                console.log('best')
-                                            }}
-                                        >
+                                        <Option value="pending" onClick={orderBestEmployerHandler}>
                                             Best employers
                                         </Option>
                                     </Select>

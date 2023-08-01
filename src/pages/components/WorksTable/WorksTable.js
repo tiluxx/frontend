@@ -62,7 +62,7 @@ function stableSort(array, comparator) {
 }
 
 function WorksTable() {
-    const { contractId, wallet } = useContext(WalletContext)
+    const { contractId, wallet, userId } = useContext(WalletContext)
     const [workList, setWorkList] = useState([])
     const [order, setOrder] = useState('desc')
     const [selected, setSelected] = useState([])
@@ -82,7 +82,7 @@ function WorksTable() {
     }, [])
 
     const getAllJobByCreator = () => {
-        return wallet.viewMethod({ method: 'GetJob', contractId })
+        return wallet.viewMethod({ method: 'GetJob', args: { creatorId: userId }, contractId })
     }
 
     const deleteJobHandler = (e) => {

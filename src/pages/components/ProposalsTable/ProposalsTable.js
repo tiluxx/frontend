@@ -65,7 +65,7 @@ function stableSort(array, comparator) {
 }
 
 function ProposalsTable() {
-    const { contractId, wallet } = useContext(WalletContext)
+    const { contractId, wallet, userId } = useContext(WalletContext)
     const [proposalList, setProposalList] = useState([])
     const [order, setOrder] = useState('desc')
     const [selected, setSelected] = useState([])
@@ -91,7 +91,7 @@ function ProposalsTable() {
     }, [])
 
     const getAllProposalsByAccountId = () => {
-        return wallet.viewMethod({ method: 'GetJobRegisteredByUser', args: { id: wallet.accountId }, contractId })
+        return wallet.viewMethod({ method: 'GetJobRegisteredByUser', args: { id: userId }, contractId })
     }
 
     const renderFilters = () => (
