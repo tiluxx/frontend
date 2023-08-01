@@ -19,6 +19,7 @@ import FormLabel from '@mui/joy/FormLabel'
 import Select from '@mui/joy/Select'
 import Option from '@mui/joy/Option'
 import Input from '@mui/joy/Input'
+import Rating from '@mui/material/Rating'
 import { SearchRegular } from '@fluentui/react-icons'
 
 import { WalletContext } from '../../App'
@@ -69,8 +70,9 @@ function FindWork() {
     }
 
     function starComparator(firstWork, secondWork) {
-        const first = firstWork?.createdAt
-        const second = secondWork?.createdAt
+        const first = firstWork?.star !== null ? firstWork?.star : 4.0
+        const second = secondWork?.star !== null ? secondWork?.star : 4.0
+
         if (isAfter(first, second)) {
             return -1
         }
@@ -86,7 +88,6 @@ function FindWork() {
         }
 
         const newWork = [...workList]
-        console.log(newWork.sort(dateComparator))
         setWorkList(newWork.sort(dateComparator))
     }
 
@@ -96,7 +97,7 @@ function FindWork() {
         }
 
         const newWork = [...workList]
-        setWorkList(newWork.sort(starComparator()))
+        setWorkList(newWork.sort(starComparator))
     }
 
     return (
@@ -231,9 +232,12 @@ function FindWork() {
                                         </Box>
                                     </CardContent>
                                     <CardActions buttonFlex="0 1 120px">
-                                        <IconButton variant="outlined" color="neutral" sx={{ mr: 'auto' }}>
-                                            <FavoriteBorder />
-                                        </IconButton>
+                                        <Box sx={{ mr: 'auto' }}>
+                                            <IconButton variant="outlined" color="neutral" sx={{ mr: 1 }}>
+                                                <FavoriteBorder />
+                                            </IconButton>
+                                            <Rating value={work?.star} readOnly sx={{ color: '#1100ff' }} />
+                                        </Box>
                                         <Link
                                             to={config.routes.sendProposal}
                                             state={{ work: work }}

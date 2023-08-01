@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import classNames from 'classnames/bind'
 import Container from 'react-bootstrap/Container'
@@ -19,6 +19,7 @@ import { DocumentFolderRegular } from '@fluentui/react-icons'
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
 import ModalAlert from '../../pages/components/ModalAlert'
+import ModalRating from '../../pages/components/ModalRating'
 import config from '../../config'
 import styles from './WorkDetailFreelancerSide.module.scss'
 
@@ -27,10 +28,13 @@ const cx = classNames.bind(styles)
 function WorkDetailFreelancerSide() {
     const { contractId, wallet } = useContext(WalletContext)
     const [work, setWork] = useState({})
-    const [openModal, setOpenModal] = useState(false)
+    const [openModalSubmitProduct, setOpenModalSubmitProduct] = useState(false)
+    const [openModalRating, setOpenModalRating] = useState(false)
+    const [openModalRatingSuccess, setOpenModalRatingSuccess] = useState(false)
     const { state } = useLocation()
 
     useEffect(() => {
+        console.log(state?.work)
         setWork({ ...state?.work })
     }, [])
 
@@ -42,7 +46,7 @@ function WorkDetailFreelancerSide() {
             .then(async (res) => {
                 // return getGreeting()
                 console.log(res)
-                setOpenModal(true)
+                setOpenModalSubmitProduct(true)
             })
             .catch((res) => {
                 console.log(res)
@@ -51,6 +55,47 @@ function WorkDetailFreelancerSide() {
         // .finally(() => {
         //     setUiPleaseWait(false)
         // })
+    }
+
+    const rateEmployerHandler = (e) => {
+        e.preventDefault()
+        const { commentRating, starRating } = e.target.elements
+
+        wallet
+            .callMethod({
+                method: 'Evaluate',
+                args: {
+                    userId: work?.creator?.id,
+                    jobId: work?.id,
+                    star: starRating.value,
+                    message: commentRating.value,
+                },
+                contractId,
+            })
+            .then(async (res) => {
+                // return getGreeting()
+                console.log(res)
+                setOpenModalRating(false)
+                setOpenModalRatingSuccess(true)
+            })
+            .catch((res) => {
+                console.log(res)
+            })
+    }
+
+    const workStatusConvert = (status) => {
+        switch (status) {
+            case 2:
+                return 'Pending'
+            case 3:
+                return 'Stopped'
+            case 4:
+                return 'Paid'
+            case 5:
+                return 'Cancelled'
+            default:
+                return 'Processing'
+        }
     }
 
     return (
@@ -84,7 +129,7 @@ function WorkDetailFreelancerSide() {
                                                 <Col xs={12}>
                                                     <Row>
                                                         <Col xs={12} md={6}>
-                                                            <h5 className={cx('work-title')}>{work.title}</h5>
+                                                            <h5 className={cx('work-title')}>{state?.work.title}</h5>
                                                         </Col>
                                                         <Col xs={12} md={6} className={cx('work-condition')}>
                                                             <Chip
@@ -95,11 +140,17 @@ function WorkDetailFreelancerSide() {
                                                                         Pending: 'success',
                                                                         Processing: 'neutral',
                                                                         Cancelled: 'danger',
-                                                                    }['Pending']
+                                                                    }[
+                                                                        state?.work.status === '1'
+                                                                            ? 'Processing'
+                                                                            : state?.work.status === '2' || state?.work.status === '4'
+                                                                            ? 'Pending'
+                                                                            : 'Cancelled'
+                                                                    ]
                                                                 }
                                                                 sx={{ fontSize: '1.4rem', p: '2px 10px' }}
                                                             >
-                                                                Pending
+                                                                {workStatusConvert(state?.work.status)}
                                                             </Chip>
                                                         </Col>
                                                     </Row>
@@ -118,7 +169,7 @@ function WorkDetailFreelancerSide() {
                                                             marginTop: '10px',
                                                         }}
                                                     >
-                                                        {work.categories.map((category, index) => (
+                                                        {state?.work?.categories.map((category, index) => (
                                                             <Chip
                                                                 variant="soft"
                                                                 color="neutral"
@@ -152,10 +203,22 @@ function WorkDetailFreelancerSide() {
                                     </Col>
                                     <Col xs={12}>
                                         <Box sx={{ mt: '20px' }}>
-                                            <h5 className={cx('work-price')}>{`Price: $${work.money}`}</h5>
+                                            <h5 className={cx('work-price')}>{`Price: $${state?.work.money}`}</h5>
                                         </Box>
                                     </Col>
                                 </Row>
+                                {(state?.work.status === 3 || state?.work.status === 4) && (
+                                    <CardActions sx={{ gridColumn: '1/-1', mt: '24px' }}>
+                                        <button
+                                            className="save-btn btn rounded-pill btn-primary-style"
+                                            onClick={() => {
+                                                setOpenModalRating(true)
+                                            }}
+                                        >
+                                            Review employer
+                                        </button>
+                                    </CardActions>
+                                )}
                             </CardContent>
                         </Card>
                     </Col>
@@ -249,10 +312,24 @@ function WorkDetailFreelancerSide() {
                 </Row>
             </Container>
             <ModalAlert
-                open={openModal}
-                setOpen={setOpenModal}
+                open={openModalSubmitProduct}
+                setOpen={setOpenModalSubmitProduct}
                 message="Your work've sent to client successfully! Be patient to wait response from them."
                 backPath={config.routes.proposalDashboard}
+            />
+            <ModalAlert
+                open={openModalRatingSuccess}
+                setOpen={setOpenModalRatingSuccess}
+                message="Thanks for your hard working. Let's explore new works now!"
+                btnMessage="Browse new works"
+                backPath={config.routes.findWork}
+            />
+            <ModalRating
+                open={openModalRating}
+                setOpen={setOpenModalRating}
+                title="Review your client"
+                message="Please review your client to enhance your network."
+                submitFormHandler={rateEmployerHandler}
             />
         </div>
     )

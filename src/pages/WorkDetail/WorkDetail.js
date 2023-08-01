@@ -14,13 +14,13 @@ import Divider from '@mui/joy/Divider'
 import AspectRatio from '@mui/joy/AspectRatio'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
-import { DocumentFolderRegular, EditRegular } from '@fluentui/react-icons'
-
+import { DocumentFolderRegular, EditRegular, DeleteRegular } from '@fluentui/react-icons'
 import { WalletContext } from '../../App'
 import Banner from '../../pages/components/Banner'
 import ModalAlert from '../../pages/components/ModalAlert'
 import ModalEdit from '../../pages/components/ModalEdit'
 import ModalLoading from '../../pages/components/ModalLoading'
+import ModalRating from '../../pages/components/ModalRating'
 import config from '../../config'
 import styles from './WorkDetail.module.scss'
 
@@ -32,12 +32,26 @@ function WorkDetail() {
     const [openModalAlert, setOpenModalAlert] = useState(false)
     const [openModalEdit, setOpenModalEdit] = useState(false)
     const [openModalLoading, setOpenModalLoading] = useState(false)
+    const [openModalRating, setOpenModalRating] = useState(false)
+    const [openModalRatingSuccess, setOpenModalRatingSuccess] = useState(false)
     const [isBtnLoading, setIsBtnLoading] = useState(false)
     const [workDueDateTime, setWorkDueDateTime] = useState('')
     const { state } = useLocation()
 
     useEffect(() => {
         setWork({ ...state?.work })
+        // wallet
+        //     .viewMethod({
+        //         method: 'GetJob',
+        //         args: {
+        //             id: state?.work?.id,
+        //         },
+        //         contractId,
+        //     })
+        //     .then((res) => {
+        //         console.log(res)
+        //         setWork({ ...state?.work })
+        //     })
     }, [])
 
     const payWorkHandler = (e) => {
@@ -61,15 +75,14 @@ function WorkDetail() {
     const changeDueDateHandler = (e) => {
         e.preventDefault()
         setIsBtnLoading(true)
-        const dateTime = e.target.elements[0].value + ' ' + e.target.elements[1].value
+        const dateTime = e.target.elements[0].value + ' ' + e.target.elements[1].value + ':59'
 
         wallet
             .callMethod({
                 method: 'SetJobDeadline',
                 args: {
                     jobId: work.id,
-                    // deadline: dateTime + ':59',
-                    deadline: e.target.elements[0].value,
+                    deadline: new Date(dateTime).toISOString(),
                 },
                 contractId,
             })
@@ -79,6 +92,47 @@ function WorkDetail() {
                 setIsBtnLoading(false)
                 setOpenModalEdit(false)
             })
+    }
+
+    const rateFreelancerHandler = (e) => {
+        e.preventDefault()
+        const { commentRating, starRating } = e.target.elements
+
+        wallet
+            .callMethod({
+                method: 'Evaluate',
+                args: {
+                    userId: work?.freelancer?.id,
+                    jobId: work?.id,
+                    star: starRating.value,
+                    message: commentRating.value,
+                },
+                contractId,
+            })
+            .then(async (res) => {
+                // return getGreeting()
+                console.log(res)
+                setOpenModalRating(false)
+                setOpenModalRatingSuccess(true)
+            })
+            .catch((res) => {
+                console.log(res)
+            })
+    }
+
+    const workStatusConvert = (status) => {
+        switch (status) {
+            case 2:
+                return 'Pending'
+            case 3:
+                return 'Stopped'
+            case 4:
+                return 'Paid'
+            case 5:
+                return 'Cancelled'
+            default:
+                return 'Processing'
+        }
     }
 
     return (
@@ -123,11 +177,17 @@ function WorkDetail() {
                                                                         Pending: 'success',
                                                                         Processing: 'neutral',
                                                                         Cancelled: 'danger',
-                                                                    }['Pending']
+                                                                    }[
+                                                                        work.status === '1'
+                                                                            ? 'Processing'
+                                                                            : work.status === '2' || work.status === '4'
+                                                                            ? 'Pending'
+                                                                            : 'Cancelled'
+                                                                    ]
                                                                 }
                                                                 sx={{ fontSize: '1.4rem', p: '2px 10px' }}
                                                             >
-                                                                Pending
+                                                                {workStatusConvert(work.status)}
                                                             </Chip>
                                                         </Col>
                                                     </Row>
@@ -181,17 +241,42 @@ function WorkDetail() {
                                         </Box>
                                     </Col>
                                 </Row>
-                                <CardActions sx={{ gridColumn: '1/-1', mt: '24px' }}>
-                                    <button className="cancel-btn btn rounded-pill btn-outline-style">
-                                        Request to Redo
-                                    </button>
-                                    <button
-                                        className="save-btn btn rounded-pill btn-primary-style"
-                                        onClick={payWorkHandler}
-                                    >
-                                        Confirm and Pay
-                                    </button>
-                                </CardActions>
+                                {work.status === 2 ? (
+                                    <CardActions sx={{ gridColumn: '1/-1', mt: '24px' }}>
+                                        <button className="cancel-btn btn rounded-pill btn-outline-style">
+                                            Request to Redo
+                                        </button>
+                                        <button
+                                            className="save-btn btn rounded-pill btn-primary-style"
+                                            onClick={payWorkHandler}
+                                        >
+                                            Confirm and Pay
+                                        </button>
+                                    </CardActions>
+                                ) : work.status === 3 || work.status === 4 ? (
+                                    <CardActions sx={{ gridColumn: '1/-1', mt: '24px' }}>
+                                        <button
+                                            className="save-btn btn rounded-pill btn-primary-style"
+                                            onClick={() => {
+                                                setOpenModalRating(true)
+                                            }}
+                                        >
+                                            Review freelancer
+                                        </button>
+                                    </CardActions>
+                                ) : (
+                                    <CardActions sx={{ gridColumn: '1/-1', mt: '24px' }}>
+                                        <Button
+                                            variant="outlined"
+                                            size="lg"
+                                            color="danger"
+                                            startDecorator={<DeleteRegular />}
+                                            type="submit"
+                                        >
+                                            Stop work
+                                        </Button>
+                                    </CardActions>
+                                )}
                             </CardContent>
                         </Card>
                     </Col>
@@ -286,6 +371,20 @@ function WorkDetail() {
                 isLoading={isBtnLoading}
                 title="Sending"
                 message="We are preparing your work to be published."
+            />
+            <ModalAlert
+                open={openModalRatingSuccess}
+                setOpen={setOpenModalRatingSuccess}
+                message="Thanks for your hard working. Let's explore new works now!"
+                btnMessage="Browse new works"
+                backPath={config.routes.findWork}
+            />
+            <ModalRating
+                open={openModalRating}
+                setOpen={setOpenModalRating}
+                title="Review your client"
+                message="Please review your client to enhance your network."
+                submitFormHandler={rateFreelancerHandler}
             />
         </div>
     )

@@ -85,6 +85,7 @@ function WorkProposals() {
                         {proposals?.length > 0 ? (
                             proposals.map((proposal, index) => (
                                 <List
+                                    key={index}
                                     sx={{
                                         display: 'grid',
                                         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -92,7 +93,6 @@ function WorkProposals() {
                                     }}
                                 >
                                     <Card
-                                        key={index}
                                         component="li"
                                         variant="outlined"
                                         sx={{
@@ -181,7 +181,12 @@ function WorkProposals() {
                                     <Typography level="h2" id="card-description" sx={{ mb: 1, fontSize: '1.4rem' }}>
                                         Be patient. Our talents will apply to your job soon
                                     </Typography>
-                                    <Chip variant="outlined" color="warning" size="lg" sx={{ my: 1, pointerEvents: 'none' }}>
+                                    <Chip
+                                        variant="outlined"
+                                        color="warning"
+                                        size="lg"
+                                        sx={{ my: 1, pointerEvents: 'none' }}
+                                    >
                                         Keep waiting
                                     </Chip>
                                 </CardContent>

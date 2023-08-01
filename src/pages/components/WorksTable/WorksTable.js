@@ -110,7 +110,11 @@ function WorksTable() {
         <Fragment>
             <FormControl size="sm">
                 <FormLabel>Status</FormLabel>
-                <Select placeholder="Filter by status" slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}>
+                <Select
+                    placeholder="Filter by status"
+                    slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
+                    sx={{ py: 0 }}
+                >
                     <Option value="paid">Paid</Option>
                     <Option value="pending">Pending</Option>
                     <Option value="refunded">Refunded</Option>
@@ -120,14 +124,14 @@ function WorksTable() {
 
             <FormControl size="sm">
                 <FormLabel>Category</FormLabel>
-                <Select placeholder="All">
+                <Select placeholder="All" sx={{ py: 0 }}>
                     <Option value="all">All</Option>
                 </Select>
             </FormControl>
 
             <FormControl size="sm">
                 <FormLabel>Customer</FormLabel>
-                <Select placeholder="All">
+                <Select placeholder="All" sx={{ py: 0 }}>
                     <Option value="all">All</Option>
                 </Select>
             </FormControl>

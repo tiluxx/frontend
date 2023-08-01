@@ -72,8 +72,6 @@ function ProposalsTable() {
     const [openFilter, setOpenFilter] = useState(false)
 
     useEffect(() => {
-        console.log(wallet)
-        console.log(wallet.accountId)
         getAllProposalsByAccountId()
             .then((res) => {
                 const { status, data } = JSON.parse(res)
@@ -98,7 +96,11 @@ function ProposalsTable() {
         <Fragment>
             <FormControl size="sm">
                 <FormLabel>Status</FormLabel>
-                <Select placeholder="Filter by status" slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}>
+                <Select
+                    placeholder="Filter by status"
+                    slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
+                    sx={{ py: 0 }}
+                >
                     <Option value="paid">Paid</Option>
                     <Option value="pending">Pending</Option>
                     <Option value="refunded">Refunded</Option>
@@ -106,14 +108,14 @@ function ProposalsTable() {
                 </Select>
             </FormControl>
 
-            <FormControl size="sm">
+            <FormControl size="sm" sx={{ py: 0 }}>
                 <FormLabel>Category</FormLabel>
                 <Select placeholder="All">
                     <Option value="all">All</Option>
                 </Select>
             </FormControl>
 
-            <FormControl size="sm">
+            <FormControl size="sm" sx={{ py: 0 }}>
                 <FormLabel>Customer</FormLabel>
                 <Select placeholder="All">
                     <Option value="all">All</Option>
@@ -287,9 +289,8 @@ function ProposalsTable() {
                                         }
                                         color={
                                             {
-                                                Paid: 'success',
-                                                Refunded: 'neutral',
-                                                Cancelled: 'danger',
+                                                Success: 'success',
+                                                Pending: 'neutral',
                                             }['freelancer' in proposal?.job ? 'Success' : 'Pending']
                                         }
                                         sx={{ fontSize: '1.2rem' }}
@@ -299,7 +300,7 @@ function ProposalsTable() {
                                 </td>
                                 <td>
                                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                        <Avatar size="sm">{row.customer.initial}</Avatar>
+                                        <Avatar size="sm">C</Avatar>
                                         <div>
                                             <Typography fontWeight="lg" level="body3" textColor="text.primary">
                                                 {proposal?.job.creator.accountId}
@@ -307,21 +308,24 @@ function ProposalsTable() {
                                         </div>
                                     </Box>
                                 </td>
-                                <td>{row.subscription}</td>
+                                <td>{proposal.createAt ? format(new Date(proposal.createAt), 'PP') : 'Feb 3, 2023'}</td>
                                 <td>
-                                    {'freelancer' in proposal?.job && (
-                                        <LinkRoute to={config.routes.workDetailFreelancerSide} state={proposal?.job}>
-                                            <Link
-                                                fontWeight="lg"
-                                                component="button"
-                                                color="neutral"
-                                                sx={{ ml: 2 }}
-                                                startDecorator={<EyeRegular />}
-                                            >
-                                                View
-                                            </Link>
-                                        </LinkRoute>
-                                    )}
+                                    <LinkRoute
+                                        to={config.routes.workDetailFreelancerSide}
+                                        state={{ work: proposal?.job }}
+                                    >
+                                        <Link
+                                            fontWeight="lg"
+                                            component="button"
+                                            color="neutral"
+                                            sx={{ ml: 2 }}
+                                            startDecorator={<EyeRegular />}
+                                        >
+                                            View
+                                        </Link>
+                                    </LinkRoute>
+                                    {/* {'freelancer' in proposal?.job && (
+                                    )} */}
                                 </td>
                             </tr>
                         ))}

@@ -10,7 +10,14 @@ import CardContent from '@mui/joy/CardContent'
 import CardOverflow from '@mui/joy/CardOverflow'
 import BakeryDiningIcon from '@mui/icons-material/BakeryDining'
 
-function ModalAlert({ title = 'Congratulations', backPath = '/', message, open, setOpen = () => {} }) {
+function ModalAlert({
+    title = 'Congratulations',
+    backPath = '/',
+    message,
+    btnMessage = 'Back to dashboard',
+    open,
+    setOpen = () => {},
+}) {
     return (
         <Fragment>
             <Modal
@@ -78,7 +85,7 @@ function ModalAlert({ title = 'Congratulations', backPath = '/', message, open, 
                         }}
                     >
                         <Link to={backPath} className="save-btn btn rounded-pill btn-primary-style">
-                            Back to dashboard
+                            {btnMessage}
                         </Link>
                     </CardActions>
                 </Card>
